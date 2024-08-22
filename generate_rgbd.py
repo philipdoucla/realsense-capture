@@ -13,18 +13,28 @@ config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
+# Create an align object
+# rs.stream.color indicates that we want to align depth to the color stream
+align_to = rs.stream.color
+align = rs.align(align_to)
+
 try:
     while True:
         # Wait for a coherent pair of frames: depth and color
         frames = pipeline.wait_for_frames()
-        depth_frame = frames.get_depth_frame()
-        color_frame = frames.get_color_frame()
 
-        if not depth_frame or not color_frame:
+        # Align the depth frame to color frame
+        aligned_frames = align.process(frames)
+
+        # Get aligned frames
+        aligned_depth_frame = aligned_frames.get_depth_frame()
+        color_frame = aligned_frames.get_color_frame()
+
+        if not aligned_depth_frame or not color_frame:
             continue
 
         # Convert images to numpy arrays
-        depth_image = np.asanyarray(depth_frame.get_data())
+        depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
 
         # Apply colormap on depth image (optional for visualization)
@@ -38,7 +48,7 @@ try:
 
         # Save the frames to files
         cv2.imwrite('color_image.png', color_image)
-        cv2.imwrite('depth_image.png', depth_colormap)
+        cv2.imwrite('depth_image.png', depth_image)
 
         # Break the loop by pressing 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
