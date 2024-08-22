@@ -41,7 +41,13 @@ try:
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
         # Stack both images horizontally for visualization
-        images = np.hstack((color_image, depth_colormap))
+        images = np.vstack((color_image, depth_colormap))
+
+        # Create a named window
+        cv2.namedWindow('RealSense', cv2.WINDOW_NORMAL)
+
+        # Resize the window (not the image)
+        cv2.resizeWindow('RealSense', 640, 640)
 
         # Show images
         cv2.imshow('RealSense', images)
