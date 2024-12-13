@@ -4,9 +4,9 @@ import cv2
 import os
 
 # Define the paths to the color and depth folders
-color_folder = 'color'
-depth_folder = 'depth'
-point_cloud_folder = 'point_clouds'
+color_folder = 'color_7_test'
+depth_folder = 'depth_7_test'
+point_cloud_folder = 'point_clouds_7_test'
 
 # Create the point_clouds directory if it doesn't exist
 if not os.path.exists(point_cloud_folder):

@@ -2,6 +2,23 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 import os
+import sys
+
+# Check if an argument was provided
+if len(sys.argv) != 2:
+    print("Usage: python program.py <label>")
+    sys.exit(1)
+
+# Get the directory name suffix from the command-line argument
+dir_suffix = sys.argv[1]
+
+# Create the color and depth directories with the suffix
+color_dir = f'color_{dir_suffix}'
+depth_dir = f'depth_{dir_suffix}'
+
+# Create the directories
+os.makedirs(color_dir, exist_ok=True)
+os.makedirs(depth_dir, exist_ok=True)
 
 # Configure depth and color streams
 pipeline = rs.pipeline()
@@ -17,12 +34,6 @@ pipeline.start(config)
 # Create an align object
 align_to = rs.stream.color
 align = rs.align(align_to)
-
-# Create directories if they do not exist
-if not os.path.exists('color'):
-    os.makedirs('color')
-if not os.path.exists('depth'):
-    os.makedirs('depth')
 
 try:
     frame_count = 0  # Initialize frame counter
@@ -46,7 +57,7 @@ try:
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
         # Stack both images vertically for visualization
-        images = np.vstack((color_image, depth_colormap))
+        images = np.vstack((color_image_rgb, depth_colormap))
 
         # Create a named window
         cv2.namedWindow('RealSense', cv2.WINDOW_NORMAL)
@@ -58,8 +69,8 @@ try:
         cv2.imshow('RealSense', images)
 
         # Save the frames to files with incrementing filenames
-        color_filename = f'color/color_image_{frame_count}.png'
-        depth_filename = f'depth/depth_image_{frame_count}.png'
+        color_filename = os.path.join(color_dir, f'color_image_{frame_count}.png')
+        depth_filename = os.path.join(depth_dir, f'depth_image_{frame_count}.png')
 
         cv2.imwrite(color_filename, color_image_rgb)
         cv2.imwrite(depth_filename, depth_image)
